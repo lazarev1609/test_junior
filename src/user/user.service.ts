@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { user } from "src/models/user.entity";
 import { Repository } from "typeorm";
@@ -9,22 +9,45 @@ export class UserService {
 
     constructor(@InjectRepository(user) private userRepository: Repository<user>) {};
 
-    // Create new user
     async CreateUser(dto: CreateUserDto) : Promise<user> {                  
         const user = await this.userRepository.create(dto);
         await this.userRepository.save(user);
         return user;
     }
 
-    // Get user
+    async getAllUsers() {
+        const users = await this.userRepository.find();
+        console.log(users);
+        return users;
+    }
+
     async getUser(id:number) : Promise<user> {
         const user = await this.userRepository.findOne(id);
-        console.log(user);
+        console.log(user.books);
         return user;
     }
 
-    // Delete user
+    async updateUser(id:number, userDto: CreateUserDto) {
+        if(this.userRepository.update(id, userDto)){
+            throw new HttpException('Success update', 200);
+        }
+        else throw new HttpException('Update error', 500);
+    }
+
     async deleteUser(id:number) : Promise<void> {
         await this.userRepository.delete(id);
+    }
+
+    async subscribe(id:number) {
+        if( (await this.userRepository.findOne(id)).abonement == true){
+            throw new HttpException("User has subscription", 400);
+        }
+        if(await this.userRepository.createQueryBuilder()
+        .update(user)
+        .set({abonement:true})
+        .where({
+            id
+        })
+        .execute()) throw new HttpException('Success subscribe', 200);
     }
 }

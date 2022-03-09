@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, JoinColumn } from 'typeorm';
+import { book } from './book.entity';
 @Entity()
 export class user {
 
@@ -9,7 +9,10 @@ export class user {
   @Column()
   name: string;
 
-  @Column({default: null})
-  abonement: string;
+  @Column({default: false})
+  abonement: boolean;
 
+  @OneToMany(() => book, book => book.user_id, { eager: true, cascade: true } )
+  @JoinColumn() books: book[];
+    
 }
