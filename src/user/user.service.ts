@@ -15,7 +15,7 @@ export class UserService {
         return user;
     }
 
-    async getAllUsers() {
+    async getAllUsers() : Promise<user[]>{
         const users = await this.userRepository.find();
         console.log(users);
         return users;
@@ -35,7 +35,15 @@ export class UserService {
     }
 
     async deleteUser(id:number) : Promise<void> {
-        await this.userRepository.delete(id);
+        if(!await this.userRepository.findOne(id)) {
+            throw new HttpException("User not found", 400);
+        }
+        if(await this.userRepository.delete(id)) {
+            throw new HttpException("Succes delete user", 200);
+        }
+        else {
+            throw new HttpException("Error database query", 500);
+        }
     }
 
     async subscribe(id:number) {
