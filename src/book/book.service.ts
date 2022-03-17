@@ -14,7 +14,8 @@ export class BookService {
 
     async CreateBook(dto :CreateBookDto) : Promise<book> {
         const tmp = await this.bookRepository.find({title:dto.title})
-        if(!tmp){
+        console.log(tmp);
+        if(tmp.length == 0){
             const book = await this.bookRepository.create(dto);
             await this.bookRepository.save(book);
             return book;            
